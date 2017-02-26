@@ -1,0 +1,8 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/Surf.iml
+.idea/compiler.xml
+.idea/
+build/
+lib/
+target/
+*.jar
