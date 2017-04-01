@@ -24,7 +24,7 @@ public class LoaderHistograms {
         FileReader fr = new FileReader(fileWithHistogarm);
         BufferedReader bfr = new BufferedReader(fr);
 
-        pom = bfr.readLine().replace("{", " ").replace("}", ""); // PIERWSZY
+        pom = bfr.readLine().replace("{", " ").replace("}", "").replace(" ",""); // PIERWSZY
         bazaPkt = pom.split(",");
 
         bfr.close();
@@ -32,13 +32,13 @@ public class LoaderHistograms {
 
         for (Integer i = 0; i < bazaPkt.length; i++) {
             if (i < 9) {
-                pom3 = bazaPkt[i].substring(3);
+                pom3 = bazaPkt[i].substring(2);
                 map.put(i, Integer.valueOf(pom3));
             } else if (i < 99) {
-                pom3 = bazaPkt[i].substring(4);
+                pom3 = bazaPkt[i].substring(3);
                 map.put(i, Integer.valueOf(pom3));
             } else {
-                pom3 = bazaPkt[i].substring(5);
+                pom3 = bazaPkt[i].substring(4);
                 map.put(i, Integer.valueOf(pom3));
             }
         }

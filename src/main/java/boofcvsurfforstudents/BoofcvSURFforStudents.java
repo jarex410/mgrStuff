@@ -58,10 +58,12 @@ public class BoofcvSURFforStudents {
     private static final String rzeszowBase = "H:\\MAGISTERKA\\BazyZdjec\\Rzeszow";
     private static final String zuBuDuBase = "H:\\MAGISTERKA\\BazyZdjec\\ZuBuD";
     private static final String oxfordBase = "H:\\MAGISTERKA\\BazyZdjec\\oxbuild_images";
-
-    public void generujPktSurf(String pathToFolderWithPictures) throws IOException {
+    private static final String BAZA_TESTOWA = "H:\\MAGISTERKA\\BazyZdjec\\BAZA_TESTOWA";
+    public static void main(String[] args) throws IOException {
+   // public void generujPktSurf(String pathToFolderWithPictures) throws IOException {
         // SURF generuje punkty na obrazie i opisuje każdy z nich za pomocą 64 wartości.
         int liczbaPunktowOktawa = 500;
+        String pathToFolderWithPictures = BAZA_TESTOWA;
         File folder = new File(pathToFolderWithPictures);
         File[] listOfFiles = folder.listFiles();
 
@@ -124,11 +126,11 @@ public class BoofcvSURFforStudents {
     }
 
 
-    public static void main(String[] args) throws IOException {
+    public static void aaa(String[] args) throws IOException {
         // SURF generuje punkty na obrazie i opisuje każdy z nich za pomocą 124 wartości.
         int liczbaPunktowOktawa = 500;
 
-        String pathToFolderWithPictures = zuBuDuBase;
+        String pathToFolderWithPictures = BAZA_TESTOWA;
 
         File folder = new File(pathToFolderWithPictures);
         File[] listOfFiles = folder.listFiles();
@@ -145,7 +147,7 @@ public class BoofcvSURFforStudents {
 
                 try {
                     generujPunktySIFT(file.toString(), punkty, deskryptory);
-                    //System.out.println("Odnalezione cechy: " + punkty.size());
+                    System.out.println("Odnalezione cechy: " + punkty.size());
 
 
                 } catch (Exception e) {
@@ -162,6 +164,7 @@ public class BoofcvSURFforStudents {
                     int j = 0;
 
                     for (SurfFeature it : deskryptory) {
+
                         try {
                             bw.write(punkty.get(j).toString());
                             bw.newLine();

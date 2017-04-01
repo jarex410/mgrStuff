@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
+import static moje.GeneratorHistogramow2NEW.SUFR;
 import static moje.histogramy.HistogramComparator.PATH_TO_RZESZOW_DATABASE;
 
 /**
@@ -70,7 +71,7 @@ public class Test2{
         int liczbaPoprawnych = 0;
 
         for (File fileToCompare : wylosowaneObrazySufr) {
-            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, listOfFilesSurf, 200, true));
+            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, listOfFilesSurf, 200, SUFR));
             podsumowanie.putAll(statystyka(fileToCompare.getName(), wyniki.get(fileToCompare.getName())));
             if(podsumowanie.get(fileToCompare.getName()) == 1){
                 liczbaPoprawnych++;

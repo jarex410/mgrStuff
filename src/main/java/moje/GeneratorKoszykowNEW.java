@@ -3,10 +3,10 @@ package moje;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static moje.GeneratorHistogramow2NEW.*;
 
 /**
  * Created by JaroLP on 2015-10-30.
@@ -35,26 +35,36 @@ public class GeneratorKoszykowNEW {
      * @throws IOException
      */
 
-    public void generujKoszyki(String pathToDataBase, int numberOfBaskets, int listaDESCGenerowanychPrzezAlgorytm) throws IOException {
+    public void generujKoszyki(String pathToDataBase, int numberOfBaskets, int listaDESCGenerowanychPrzezAlgorytm, boolean binarny) throws IOException {
 
         List<String> calaBazaPkt = new ArrayList<>();
         List<String> pktBazowe = new ArrayList<>();
 
         Random r = new Random();
         int randomik = 0;
-        File folder;
-        if(listaDESCGenerowanychPrzezAlgorytm == SUFR) {
-             folder = new File(pathToDataBase + "\\desc");
-        } else{
-             folder = new File(pathToDataBase + "\\descSIFT");
+        File folder = null;
+
+        if (listaDESCGenerowanychPrzezAlgorytm == SUFR && !binarny) {
+            folder = new File(pathToDataBase + "\\desc");
+        } else if (listaDESCGenerowanychPrzezAlgorytm == SIFT && !binarny) {
+            folder = new File(pathToDataBase + "\\descSIFT");
+        } else if (listaDESCGenerowanychPrzezAlgorytm == SUFR && binarny) {
+            folder = new File(pathToDataBase + "\\BinarSurf");
+        } else if (listaDESCGenerowanychPrzezAlgorytm == SIFT && binarny) {
+            folder = new File(pathToDataBase + "\\BinarSift");
         }
         File[] listOfFiles = folder.listFiles();
+
+        File folderUczacych = new File(pathToDataBase + "\\Uczace\\");
+
+        List<String> nazwyUczacych = new ArrayList<File>(Arrays.asList(folderUczacych.listFiles())).stream().map(x -> x.getName()).collect(Collectors.toList());
+        List<File> listaUczacych = new ArrayList<File>(Arrays.asList(listOfFiles)).stream().filter(x -> nazwyUczacych.contains(x.getName().replace(".DESC.txt",""))).collect(Collectors.toList());
+        File[] plikiUczace = listaUczacych.toArray(new File[listaUczacych.size()]);
 
         //zbiera pkt z okreslonej listy obrazow i losuje koszyki
         //w tym przypadku 100 losowych obrazow z bazy
 
-        for (int i = 0; i < 100; i++) {
-            File file = listOfFiles[r.nextInt(listOfFiles.length)];
+        for (File file : plikiUczace) {
             if (file.isFile()) {
                 Scanner scanner = new Scanner(file);
                 while (scanner.hasNextLine()) {
@@ -74,11 +84,19 @@ public class GeneratorKoszykowNEW {
                 pktBazowe.add(calaBazaPkt.get(randomik * (listaDESCGenerowanychPrzezAlgorytm + 1) + k));
             }
         }
-        File fileOut ;
-        if(listaDESCGenerowanychPrzezAlgorytm == SUFR) {
-            fileOut = new File(pathToDataBase + "\\baskets\\SrodkiPrzedzialowSurf.txt");
-        } else{
-            fileOut = new File(pathToDataBase + "\\baskets\\SrodkiPrzedzialowSift.txt");
+        File fileOut;
+        if (listaDESCGenerowanychPrzezAlgorytm == SUFR) {
+            if(binarny){
+                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSurfBin.txt");
+            } else {
+                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSurf.txt");
+            }
+        } else {
+            if(binarny){
+                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSiftBin.txt");
+            } else {
+                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSift.txt");
+            }
         }
         FileWriter zapis = new FileWriter(fileOut, true);
         zapis.write(pktBazowe.toString().replaceAll(",", ""));
@@ -95,8 +113,11 @@ public class GeneratorKoszykowNEW {
 
         GeneratorKoszykowNEW generatorKoszykowNEW = new GeneratorKoszykowNEW();
 
-        generatorKoszykowNEW.generujKoszyki(PATH_TO_RZESZOW_DATABASE, 200, SUFR);
-        generatorKoszykowNEW.generujKoszyki(PATH_TO_RZESZOW_DATABASE, 200, SIFT);
+/*        generatorKoszykowNEW.generujKoszyki(PATH_TO_TEST_DATABASE, 200, SUFR);
+        generatorKoszykowNEW.generujKoszyki(PATH_TO_TEST_DATABASE, 200, SIFT);*/
+
+        generatorKoszykowNEW.generujKoszyki(PATH_TO_OXFORD_DATABASE, 500, SUFR, false);
+        generatorKoszykowNEW.generujKoszyki(PATH_TO_OXFORD_DATABASE, 500, SIFT, false);
     }
 
 }
