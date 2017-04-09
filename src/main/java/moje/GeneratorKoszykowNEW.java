@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static moje.GeneratorHistogramow2NEW.*;
+import static moje.GeneratorHistogramow2NEW.PATH_TO_HOME_DATABASE;
+import static moje.GeneratorHistogramow2NEW.PATH_TO_OXFORD_DATABASE;
+import static moje.GeneratorHistogramow2NEW.PATH_TO_ZuBuDu_DATABASE;
 
 /**
  * Created by JaroLP on 2015-10-30.
@@ -24,6 +26,8 @@ public class GeneratorKoszykowNEW {
     public final static int SUFR = 64;
 
     public final static int SIFT = 128;
+
+    public final static int BRIEF = 520;
 
 
     /**
@@ -53,50 +57,79 @@ public class GeneratorKoszykowNEW {
         } else if (listaDESCGenerowanychPrzezAlgorytm == SIFT && binarny) {
             folder = new File(pathToDataBase + "\\BinarSift");
         }
+        if (listaDESCGenerowanychPrzezAlgorytm == BRIEF) {
+            folder = new File(pathToDataBase + "\\BRIEF");
+        }
         File[] listOfFiles = folder.listFiles();
 
         File folderUczacych = new File(pathToDataBase + "\\Uczace\\");
 
         List<String> nazwyUczacych = new ArrayList<File>(Arrays.asList(folderUczacych.listFiles())).stream().map(x -> x.getName()).collect(Collectors.toList());
-        List<File> listaUczacych = new ArrayList<File>(Arrays.asList(listOfFiles)).stream().filter(x -> nazwyUczacych.contains(x.getName().replace(".DESC.txt",""))).collect(Collectors.toList());
+        List<File> listaUczacych = new ArrayList<File>(Arrays.asList(listOfFiles)).stream().filter(x -> nazwyUczacych.contains(x.getName().replace(".txt", ""))).collect(Collectors.toList());
         File[] plikiUczace = listaUczacych.toArray(new File[listaUczacych.size()]);
 
         //zbiera pkt z okreslonej listy obrazow i losuje koszyki
         //w tym przypadku 100 losowych obrazow z bazy
 
-        for (File file : plikiUczace) {
-            if (file.isFile()) {
-                Scanner scanner = new Scanner(file);
-                while (scanner.hasNextLine()) {
-                    calaBazaPkt.add(scanner.nextLine() + "\n");
-                    for (int ii = 0; ii < listaDESCGenerowanychPrzezAlgorytm; ii++) {
+        if (listaDESCGenerowanychPrzezAlgorytm == BRIEF) {
+            for (File file : plikiUczace) {
+                if (file.isFile()) {
+                    Scanner scanner = new Scanner(file).useDelimiter(",").useDelimiter("]");
+                    while (scanner.hasNext()) {
+                      //  for (int ii = 0; ii < listaDESCGenerowanychPrzezAlgorytm; ii++) {
+                            String next = scanner.next().replace("[","");
+                            if (next.trim().contains("0") || next.trim().contains("1")) {
+                                calaBazaPkt.add(next + "\n");
+                            }
+                       // }
+                    }
+                }
+            }
+        } else {
+            for (File file : plikiUczace) {
+                if (file.isFile()) {
+                    Scanner scanner = new Scanner(file);
+                    while (scanner.hasNextLine()) {
                         calaBazaPkt.add(scanner.nextLine() + "\n");
+                        for (int ii = 0; ii < listaDESCGenerowanychPrzezAlgorytm; ii++) {
+                            calaBazaPkt.add(scanner.nextLine() + "\n");
+                        }
                     }
                 }
             }
         }
 
         //generuje koszyki
-        for (int i = 0; i < numberOfBaskets; i++) {
-            randomik = r.nextInt(calaBazaPkt.size() / (listaDESCGenerowanychPrzezAlgorytm + 1));
-            pktBazowe.add(calaBazaPkt.get(randomik * (listaDESCGenerowanychPrzezAlgorytm + 1)));
-            for (int k = 1; k < listaDESCGenerowanychPrzezAlgorytm + 1; k++) {
-                pktBazowe.add(calaBazaPkt.get(randomik * (listaDESCGenerowanychPrzezAlgorytm + 1) + k));
-            }
-        }
-        File fileOut;
-        if (listaDESCGenerowanychPrzezAlgorytm == SUFR) {
-            if(binarny){
-                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSurfBin.txt");
-            } else {
-                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSurf.txt");
+
+        if(listaDESCGenerowanychPrzezAlgorytm==BRIEF){
+            for (int i = 0; i < numberOfBaskets; i++) {
+                randomik = r.nextInt(calaBazaPkt.size());
+                pktBazowe.add(calaBazaPkt.get(randomik));
             }
         } else {
-            if(binarny){
-                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSiftBin.txt");
-            } else {
-                fileOut = new File(pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSift.txt");
+            for (int i = 0; i < numberOfBaskets; i++) {
+                randomik = r.nextInt(calaBazaPkt.size() / (listaDESCGenerowanychPrzezAlgorytm + 1));
+                pktBazowe.add(calaBazaPkt.get(randomik * (listaDESCGenerowanychPrzezAlgorytm + 1)));
+                for (int k = 1; k < listaDESCGenerowanychPrzezAlgorytm + 1; k++) {
+                    pktBazowe.add(calaBazaPkt.get(randomik * (listaDESCGenerowanychPrzezAlgorytm + 1) + k));
+                }
             }
+        }
+        File fileOut = null;
+        if (listaDESCGenerowanychPrzezAlgorytm == SUFR) {
+            if (binarny) {
+                fileOut = new File(pathToDataBase + "\\" + numberOfBaskets + "\\baskets\\SrodkiPrzedzialowSurfBin.txt");
+            } else {
+                fileOut = new File(pathToDataBase + "\\" + numberOfBaskets + "\\baskets\\SrodkiPrzedzialowSurf.txt");
+            }
+        } else if (listaDESCGenerowanychPrzezAlgorytm == SIFT) {
+            if (binarny) {
+                fileOut = new File(pathToDataBase + "\\" + numberOfBaskets + "\\SrodkiPrzedzialowSiftBin.txt");
+            } else {
+                fileOut = new File(pathToDataBase + "\\" + numberOfBaskets + "\\SrodkiPrzedzialowSift.txt");
+            }
+        } else if (listaDESCGenerowanychPrzezAlgorytm == BRIEF) {
+            fileOut = new File(pathToDataBase + "\\" + numberOfBaskets + "\\SrodkiPrzedzialowBRIEF.txt");
         }
         FileWriter zapis = new FileWriter(fileOut, true);
         zapis.write(pktBazowe.toString().replaceAll(",", ""));
@@ -116,8 +149,7 @@ public class GeneratorKoszykowNEW {
 /*        generatorKoszykowNEW.generujKoszyki(PATH_TO_TEST_DATABASE, 200, SUFR);
         generatorKoszykowNEW.generujKoszyki(PATH_TO_TEST_DATABASE, 200, SIFT);*/
 
-        generatorKoszykowNEW.generujKoszyki(PATH_TO_OXFORD_DATABASE, 500, SUFR, false);
-        generatorKoszykowNEW.generujKoszyki(PATH_TO_OXFORD_DATABASE, 500, SIFT, false);
+      generatorKoszykowNEW.generujKoszyki(PATH_TO_OXFORD_DATABASE, 500, BRIEF, false);
     }
 
 }

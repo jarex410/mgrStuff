@@ -19,7 +19,7 @@ public class HistogramComparator {
     public final static String PATH_TO_RZESZOW_DATABASE = "H:\\MAGISTERKA\\BazyZdjec\\Rzeszow";
     public final static String PATH_FOR_COMPARING_FILES = "H:\\MAGISTERKA\\TESTY";
 
-    public HashMap<String, String> comparator(File fileToCompare, String pathToBaseForSearching, File[] dataBaseDesc, int numberOfBaskets, int algo) throws IOException {
+    public HashMap<String, String> comparator(File fileToCompare, String pathToBaseForSearching, File[] dataBaseDesc, int numberOfBaskets, int algo, boolean binarny) throws IOException {
 
         LoaderHistograms um = new LoaderHistograms();
 
@@ -35,14 +35,19 @@ public class HistogramComparator {
         File[] listOfFiles;
 
         if (pathToBaseForSearching != null) {
-            File folder;
-            if(algo == SUFR) {
+            File folder = null;
+            if(algo == SUFR && !binarny) {
                  folder = new File(pathToBaseForSearching + "\\HistogramySurf");
-            } else if(algo == SIFT){
-                folder = new File(pathToBaseForSearching + "\\HistogramySift");
-            } else {
-                folder = new File(pathToBaseForSearching + "\\HistogramySurfSift");
+           } else if(algo == SUFR && binarny){
+                folder = new File(pathToBaseForSearching + "\\HistogramySurfBin");
             }
+
+           if(algo == SIFT && !binarny){
+                folder = new File(pathToBaseForSearching + "\\HistogramySift");
+            } else if(algo == SIFT && binarny){
+                folder = new File(pathToBaseForSearching + "\\HistogramySiftBin");
+            }
+
             listOfFiles = folder.listFiles();
         } else {
             listOfFiles = dataBaseDesc;
@@ -129,7 +134,7 @@ public class HistogramComparator {
     public static void main(String[] args) throws IOException {
         HistogramComparator histogramComparator = new HistogramComparator();
         File file = new File("D:\\MAGISTERKA\\BazyZdjec\\Rzeszow\\Histogramy\\Histogram_00_01_04.jpg.DESC.txt");
-        System.out.println(histogramComparator.comparator(file, PATH_TO_RZESZOW_DATABASE, null, 200,SUFR).toString());
+        System.out.println(histogramComparator.comparator(file, PATH_TO_RZESZOW_DATABASE, null, 200,SUFR, true).toString());
 
     }
 }

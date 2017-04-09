@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import static moje.GeneratorHistogramow2NEW.PATH_TO_RZESZOW_DATABASE;
 import static moje.GeneratorHistogramow2NEW.PATH_TO_TEST_DATABASE;
+import static moje.GeneratorHistogramow2NEW.SIFT;
 import static moje.GeneratorKoszykowNEW.SUFR;
 
 /**
@@ -31,22 +32,22 @@ public class Test1 {
         Test1 test1 = new Test1();
         HashMap[] wynikiOstateczne;
 
-        wynikiOstateczne = test1.test1(200, PATH_TO_RZESZOW_DATABASE);
+        wynikiOstateczne = test1.test1(200, PATH_TO_RZESZOW_DATABASE, 500, SUFR, false);
 
-        File fileOut = new File(PATH_TO_TEST_FOLDER + "\\PSurfKoszykiBin.txt");
+        File fileOut = new File(PATH_TO_TEST_FOLDER + "\\PSurf500Koszyki2950na50.txt");
         FileWriter zapis = new FileWriter(fileOut, true);
         zapis.write(wynikiOstateczne[0].toString());
         zapis.close();
 
-        File fileOut2 = new File(PATH_TO_TEST_FOLDER + "\\WSurfKoszykiBin.txt");
+        File fileOut2 = new File(PATH_TO_TEST_FOLDER + "\\WSurf500Koszyki2950na50.txt");
         FileWriter zapis2 = new FileWriter(fileOut2, true);
         zapis2.write(wynikiOstateczne[1].toString());
         zapis2.close();
     }
 
-    public HashMap[] test1(int liczbaObrazowDoLosowanychDoTestow, String bazaDanych) throws IOException {
+    public HashMap[] test1(int liczbaObrazowDoLosowanychDoTestow, String bazaDanych, int liczbaKoszykow, int algorytm, boolean binarny) throws IOException {
 
-        File folder = new File(bazaDanych + "\\KoszykiWKoszykachSurfBin\\");
+        File folder = new File(bazaDanych + "\\500\\HistogramySurf");
         File folderUczacych = new File(bazaDanych + "\\Uczace\\");
 
         File[] listOfFiles = folder.listFiles();
@@ -87,7 +88,7 @@ public class Test1 {
         int liczbaPoprawnych = 0;
 
         for (File fileToCompare : wylosowaneObrazy) {
-            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, histogramyObrazowUczacych, 200, SUFR));
+            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, histogramyObrazowUczacych, liczbaKoszykow, algorytm, binarny));
             podsumowanie.putAll(statystyka(fileToCompare.getName(), wyniki.get(fileToCompare.getName())));
             if (podsumowanie.get(fileToCompare.getName()) == 1) {
                 liczbaPoprawnych++;

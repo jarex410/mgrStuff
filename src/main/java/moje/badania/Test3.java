@@ -29,7 +29,7 @@ public class Test3 {
         Test3 test3 = new Test3();
         HashMap[] wynikiOstateczne;
 
-        wynikiOstateczne = test3.test3(500, PATH_TO_RZESZOW_DATABASE);
+        wynikiOstateczne = test3.test3(500, PATH_TO_RZESZOW_DATABASE, false);
 
         File fileOut = new File(PATH_TO_TEST_FOLDER + "\\test1Porownanie1JEDEN_HIST.txt");
         FileWriter zapis = new FileWriter(fileOut, true);
@@ -52,7 +52,7 @@ public class Test3 {
         zapis4.close();
     }
 
-    public HashMap[] test3(int liczbaObrazowDoLosowanychDoTestow, String bazaDanych) throws IOException {
+    public HashMap[] test3(int liczbaObrazowDoLosowanychDoTestow, String bazaDanych, boolean binarny) throws IOException {
 
         File folder = new File(bazaDanych + "\\KoszykiWKoszykachSurf\\");
 
@@ -96,7 +96,7 @@ public class Test3 {
         int liczbaPoprawnych = 0;
 
         for (File fileToCompare : wylosowaneObrazyJedenHis) {
-            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, listOfFiles, 200, SUFR));
+            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, listOfFiles, 200, SUFR, binarny));
             podsumowanie.putAll(statystyka(fileToCompare.getName(), wyniki.get(fileToCompare.getName())));
             if(podsumowanie.get(fileToCompare.getName()) == 1){
                 liczbaPoprawnych++;
@@ -113,7 +113,7 @@ public class Test3 {
         wynikiOstaeczne[1] = podsumowanie;
 
         for (File fileToCompare : wylosowaneObrazySumHistogram) {
-            wyniki2.putAll(histogramComparator.comparator(fileToCompare, null, listOfHistogramSum, 400, 1256));
+            wyniki2.putAll(histogramComparator.comparator(fileToCompare, null, listOfHistogramSum, 400, 1256, false));
             podsumowanie2.putAll(statystyka(fileToCompare.getName(), wyniki2.get(fileToCompare.getName())));
             if(podsumowanie2.get(fileToCompare.getName()) == 1){
                 liczbaPoprawnych++;

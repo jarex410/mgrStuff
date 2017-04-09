@@ -38,7 +38,7 @@ public class Binaryzator {
 
             if (fileWithDESC.isFile()) {
 
-                ArrayList<String> lista = gen.pktToArrayList(fileWithDESC, liczbaPktGenerowanychPrzezAlgorytm);
+                ArrayList<String> lista = gen.pktToArrayList(fileWithDESC, liczbaPktGenerowanychPrzezAlgorytm,false);
                 File plik;
                 FileWriter zapis;
                 if (liczbaPktGenerowanychPrzezAlgorytm == SUFR) {
@@ -98,7 +98,7 @@ public class Binaryzator {
         for (File fileWithDESC : plikiUczace) {
             if (fileWithDESC.isFile()) {
 
-                ArrayList<String> descList = gen.pktToArrayList(fileWithDESC, liczbaPktGenerowanychPrzezAlgorytm);
+                ArrayList<String> descList = gen.pktToArrayList(fileWithDESC, liczbaPktGenerowanychPrzezAlgorytm, false);
                 Iterator<String> it2 = descList.iterator();// DESKRYPTORY
                 int z = 0;
                 String pom7, pom5;
@@ -133,7 +133,7 @@ public class Binaryzator {
 
     public static void main(String[] args) throws IOException {
         Binaryzator binaryzator = new Binaryzator();
-        binaryzator.binaryzujDesc(PATH_TO_ZuBuDu_DATABASE, SUFR);
-        binaryzator.binaryzujDesc(PATH_TO_ZuBuDu_DATABASE, SIFT);
+        binaryzator.binaryzujDesc(PATH_TO_HOME_DATABASE, SUFR);
+        binaryzator.binaryzujDesc(PATH_TO_HOME_DATABASE, SIFT);
     }
 }

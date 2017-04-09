@@ -4,6 +4,9 @@ import moje.histogramy.LoaderHistograms;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static moje.GeneratorKoszykowNEW.BRIEF;
 
 /**
  * Created by JaroLP on 2015-10-31.
@@ -13,6 +16,7 @@ public class GeneratorHistogramow2NEW {
     public final static String PATH_TO_RZESZOW_DATABASE = "H:\\MAGISTERKA\\BazyZdjec\\Rzeszow";
     public final static String PATH_TO_OXFORD_DATABASE = "H:\\MAGISTERKA\\BazyZdjec\\oxbuild_images";
     public final static String PATH_TO_ZuBuDu_DATABASE = "H:\\MAGISTERKA\\BazyZdjec\\ZuBuD";
+    public static final String PATH_TO_HOME_DATABASE = "H:\\MAGISTERKA\\BazyZdjec\\dom";
 
     public final static String PATH_TO_TEST_DATABASE = "H:\\MAGISTERKA\\BazyZdjec\\BAZA_TESTOWA";
 
@@ -45,11 +49,11 @@ public class GeneratorHistogramow2NEW {
         String PATH_TO_BASKETS;
         String PATH_TO_BASKETS2;
         if (binary) {
-            PATH_TO_BASKETS = pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSurfBin.txt";
-            PATH_TO_BASKETS2 = pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSiftBin.txt";
+            PATH_TO_BASKETS = pathToDataBase + "\\" + numberOfPoints + "\\baskets\\SrodkiPrzedzialowSurfBin.txt";
+            PATH_TO_BASKETS2 = pathToDataBase + "\\" + numberOfPoints + "\\baskets\\SrodkiPrzedzialowSiftBin.txt";
         } else {
-            PATH_TO_BASKETS = pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSurf.txt";
-            PATH_TO_BASKETS2 = pathToDataBase + "\\500\\baskets\\SrodkiPrzedzialowSift.txt";
+            PATH_TO_BASKETS = pathToDataBase + "\\" + numberOfPoints + "\\baskets\\SrodkiPrzedzialowSurf.txt";
+            PATH_TO_BASKETS2 = pathToDataBase + "\\" + numberOfPoints + "\\baskets\\SrodkiPrzedzialowSift.txt";
         }
 
         File fileWithBaskets;
@@ -58,7 +62,13 @@ public class GeneratorHistogramow2NEW {
         } else {
             fileWithBaskets = new File(PATH_TO_BASKETS2);
         }
-        basePointsList = pktToArrayList(fileWithBaskets, liczbaPktGenerowanychPrzezAlgorytm);
+
+        boolean baskets = false;
+        if(liczbaPktGenerowanychPrzezAlgorytm == BRIEF){
+            fileWithBaskets = new File(pathToDataBase + "\\" + numberOfPoints + "\\baskets\\SrodkiPrzedzialowBRIEF.txt");
+            baskets = true;
+        }
+        basePointsList = pktToArrayList(fileWithBaskets, liczbaPktGenerowanychPrzezAlgorytm, baskets);
 
         if (koszykiWkoszykach) {
             HashMap<Integer, Set> mapa = new HashMap();
@@ -84,17 +94,33 @@ public class GeneratorHistogramow2NEW {
      * @throws IOException
      */
 
-    public ArrayList pktToArrayList(File fileWithDESC, int liczbaPktGenerowanaPrzezAlgorytm) throws IOException {
+    public ArrayList pktToArrayList(File fileWithDESC, int liczbaPktGenerowanaPrzezAlgorytm, boolean baskets) throws IOException {
 
         ArrayList<String> list = new ArrayList<>();
         FileReader fr = new FileReader(fileWithDESC);
         BufferedReader bfr = new BufferedReader(fr);
         String pom;
-
-        while ((pom = bfr.readLine()) != null) {
-            list.add(pom);
-            for (int ii = 0; ii < liczbaPktGenerowanaPrzezAlgorytm; ii++) {
-                list.add(bfr.readLine());
+        if(liczbaPktGenerowanaPrzezAlgorytm == BRIEF && !baskets) {
+            Scanner scanner = new Scanner(fileWithDESC).useDelimiter(",").useDelimiter("]");
+            while (scanner.hasNext()) {
+                //  for (int ii = 0; ii < listaDESCGenerowanychPrzezAlgorytm; ii++) {
+                String next = scanner.next().replace("[","").replace(",","");
+                if (next.trim().contains("0") || next.trim().contains("1")) {
+                    list.add(next);
+                }
+                // }
+            }
+        } else if ((liczbaPktGenerowanaPrzezAlgorytm == SIFT || liczbaPktGenerowanaPrzezAlgorytm==SUFR)  && !baskets) {
+            while ((pom = bfr.readLine()) != null) {
+                list.add(pom);
+                for (int ii = 0; ii < liczbaPktGenerowanaPrzezAlgorytm; ii++) {
+                    list.add(bfr.readLine());
+                }
+            }
+        }
+        if(baskets){ // do BRIEFA koszykow INNY FORMAT KOSZYKOW
+            while ( (pom= bfr.readLine()) != null) {
+                    list.add(pom.replace("[", "").replace("]",""));
             }
         }
         bfr.close();
@@ -203,35 +229,52 @@ public class GeneratorHistogramow2NEW {
             folder = new File(pathToDataBase + "\\BinarSift");
         }
 
+        if (liczbaPktGenerowanychPrzezAlgorytm == BRIEF) {
+            folder = new File(pathToDataBase + "\\BRIEF");
+        }
+
         File[] listOfFiles = folder.listFiles();
+
+
+        File folderZHistogramami = new File(pathToDataBase + "\\500\\HistogramyBRIEF");
+        File[] tablicaGotowych = folderZHistogramami.listFiles();
+
+          List<String> listaGotowych = new ArrayList<File>(Arrays.asList(tablicaGotowych)).stream().map(x->x.getName()).collect(Collectors.toList());
 
         for (File fileWithDESC : listOfFiles) {
 
-            if (fileWithDESC.isFile()) {
+            if (fileWithDESC.isFile() && !listaGotowych.contains(fileWithDESC.getName())) {
 
                 HashMap histogram;
 
-                ArrayList<String> lista = pktToArrayList(fileWithDESC, liczbaPktGenerowanychPrzezAlgorytm);
-                if (binarny) {
+                ArrayList<String> lista = pktToArrayList(fileWithDESC, liczbaPktGenerowanychPrzezAlgorytm, false);
+                if (liczbaPktGenerowanychPrzezAlgorytm == BRIEF) {
                     histogram = histogramGeneratorHAMMING(liczbaKoszykow, lista, liczbaPktGenerowanychPrzezAlgorytm, pathToDataBase);
-                    //histogram = koszykiWKoszykach(liczbaKoszykow, lista, liczbaPktGenerowanychPrzezAlgorytm, pathToDataBase, 20.0);
-
                 } else {
-                    histogram = histogramGeneratorEUCLIDES(liczbaKoszykow, lista, liczbaPktGenerowanychPrzezAlgorytm, pathToDataBase);
+                    if (binarny) {
+                        histogram = histogramGeneratorHAMMING(liczbaKoszykow, lista, liczbaPktGenerowanychPrzezAlgorytm, pathToDataBase);
+                        //histogram = koszykiWKoszykach(liczbaKoszykow, lista, liczbaPktGenerowanychPrzezAlgorytm, pathToDataBase, 20.0);
+
+                    } else {
+                        histogram = histogramGeneratorEUCLIDES(liczbaKoszykow, lista, liczbaPktGenerowanychPrzezAlgorytm, pathToDataBase);
+                    }
                 }
-                File plik;
+                File plik = null;
                 if (liczbaPktGenerowanychPrzezAlgorytm == SUFR) {
                     if (binarny) {
-                        plik = new File(pathToDataBase + "\\500\\HistogramySurfBin\\" + fileWithDESC.getName());
+                        plik = new File(pathToDataBase + "\\" + liczbaKoszykow + "\\HistogramySurfBin\\" + fileWithDESC.getName());
                     } else {
-                        plik = new File(pathToDataBase + "\\500\\HistogramySurf\\" + fileWithDESC.getName());
+                        plik = new File(pathToDataBase + "\\" + liczbaKoszykow + "\\HistogramySurf\\" + fileWithDESC.getName());
                     }
-                } else {
+                } else if (liczbaPktGenerowanychPrzezAlgorytm == SIFT) {
                     if (binarny) {
-                        plik = new File(pathToDataBase + "\\500\\HistogramySiftBin\\" + fileWithDESC.getName());
+                        plik = new File(pathToDataBase + "\\" + liczbaKoszykow + "\\HistogramySiftBin\\" + fileWithDESC.getName());
                     } else {
-                        plik = new File(pathToDataBase + "\\500\\HistogramySift\\" + fileWithDESC.getName());
+                        plik = new File(pathToDataBase + "\\" + liczbaKoszykow + "\\HistogramySift\\" + fileWithDESC.getName());
                     }
+                } else if (liczbaPktGenerowanychPrzezAlgorytm == BRIEF) {
+                    plik = new File(pathToDataBase + "\\" + liczbaKoszykow + "\\HistogramyBRIEF\\" + fileWithDESC.getName());
+
                 }
                 FileWriter zapis = new FileWriter(plik, true);
                 zapis.write(histogram.toString());
@@ -310,80 +353,130 @@ public class GeneratorHistogramow2NEW {
         int nrSlupka = 0;
 
         // WYLICZENIU PRZESUNIECIA
-        while (z < descList.size() / (liczbaPktGenPrzezAlgo + 1) && z < liczbaKoszykow) { // PETELKA
-            // PRZECHODZ�CA
-            // PO
-            // KOLEKCJACH
-            double min1 = 1000; // Najblizsi sasiedzi
-            // String wsp1Max = "";
-            // String wsp2Max = "";
+        if(liczbaPktGenPrzezAlgo == BRIEF){
+            while (z < descList.size() && z < liczbaKoszykow) { // PETELKA
+                double min1 = 1000; // Najblizsi sasiedzi
 
 
-            for (int kk = 1; kk < basePointsList.size() / (liczbaPktGenPrzezAlgo + 1); kk++) // PETLA
-            // KTORA
-            // OBSLUGUJE
-            // SPRAWDZANIE PKTx1 z listy
-            // 1 z PKTx1....xn z listy 2
+                for (int kk = 1; kk < basePointsList.size(); kk++){
 
-            {
-                pom6 = iteratorBazowek.next(); // WSPOLRZEDNE PKT
-                pom7 = iteratorPorownowanego.next();
+                        // PO
+                        // KOLEKCJACH
+                        // W
+                        // CELU POBRANIA DANYCH DESC
+                        pom4 = iteratorBazowek.next().replace(" ","");
+                        pom5 = iteratorPorownowanego.next().replace("[[","").replace(" ","");
+                    for (int jj = 0; jj < liczbaPktGenPrzezAlgo; jj++) { // PRZECHODZENIE
+                        int descBazInt = Integer.parseInt(String.valueOf(pom4.charAt(jj)));
+                        int descPorInt = Integer.parseInt(String.valueOf(pom5.charAt(jj)));
 
+                        suma += descBazInt != descPorInt ? 1 : 0;     //HAMMING
 
-                //OBLICZANIE EUKLIDESA
+                    }
 
-                for (int jj = 0; jj < liczbaPktGenPrzezAlgo; jj++) { // PRZECHODZENIE
-                    // PO
-                    // KOLEKCJACH
-                    // W
-                    // CELU POBRANIA DANYCH DESC
-                    pom4 = iteratorBazowek.next();
-                    pom5 = iteratorPorownowanego.next();
-                    // System.out.println("POM4  +  POM 6"+pom4 + "/t"+pom5);
+                    if (suma < min1) {
+                        min1 = suma;
+                        nrSlupka = kk;
+                    }
 
+                    suma = 0;
 
-                    //HAMMING
-
-
-                    suma += Double.parseDouble(pom4) != Double
-                            .parseDouble(pom5) ? 1 : 0;     //HAMMING
+                    iteratorPorownowanego = descList.iterator();
+                    for (int zz = 0; zz < skok; zz++) { // PRZESUWANIE
+                        // ITERATORA
+                        // LISTY
+                        // PIERWSZEJ W CELU JEGO
+                        // ODPOWIEDNIGO UMIEJSCOWIENIA
+                        iteratorPorownowanego.next();
+                    }
 
                 }
+                imgHistogram.put(nrSlupka, imgHistogram.get(nrSlupka) + 1);
 
-                if (suma < min1) {
-                    min1 = suma;
-                    nrSlupka = kk;
-                }
+                nrSlupka = 0;
+                iteratorBazowek = basePointsList.iterator();
 
-                suma = 0;
+                skok = ++licznikObrotu; // WYLICZANIE WARTOSCI
+                // PRZESUNI�CIA
+                // ITERATORA PIERWSZEJ LISTY
 
-                iteratorPorownowanego = descList.iterator();
-                for (int zz = 0; zz < skok; zz++) { // PRZESUWANIE
-                    // ITERATORA
-                    // LISTY
-                    // PIERWSZEJ W CELU JEGO
-                    // ODPOWIEDNIGO UMIEJSCOWIENIA
-                    iteratorPorownowanego.next();
-                }
+                z++;
 
             }
-            imgHistogram.put(nrSlupka, imgHistogram.get(nrSlupka) + 1);
 
-            nrSlupka = 0;
-            iteratorBazowek = basePointsList.iterator();
+        } else {
+            while (z < descList.size() / (liczbaPktGenPrzezAlgo + 1) && z < liczbaKoszykow) { // PETELKA
+                // PRZECHODZ�CA
+                // PO
+                // KOLEKCJACH
+                double min1 = 1000; // Najblizsi sasiedzi
+                // String wsp1Max = "";
+                // String wsp2Max = "";
 
-            skok = (liczbaPktGenPrzezAlgo + 1) * ++licznikObrotu; // WYLICZANIE WARTOSCI
-            // PRZESUNI�CIA
-            // ITERATORA PIERWSZEJ LISTY
 
-            z++;
+                for (int kk = 1; kk < basePointsList.size() / (liczbaPktGenPrzezAlgo + 1); kk++) // PETLA
+                // KTORA
+                // OBSLUGUJE
+                // SPRAWDZANIE PKTx1 z listy
+                // 1 z PKTx1....xn z listy 2
 
+                {
+                    pom6 = iteratorBazowek.next(); // WSPOLRZEDNE PKT
+                    pom7 = iteratorPorownowanego.next();
+
+
+                    //OBLICZANIE EUKLIDESA
+
+                    for (int jj = 0; jj < liczbaPktGenPrzezAlgo; jj++) { // PRZECHODZENIE
+                        // PO
+                        // KOLEKCJACH
+                        // W
+                        // CELU POBRANIA DANYCH DESC
+                        pom4 = iteratorBazowek.next();
+                        pom5 = iteratorPorownowanego.next();
+                        // System.out.println("POM4  +  POM 6"+pom4 + "/t"+pom5);
+
+
+                        //HAMMING
+
+
+                        suma += Double.parseDouble(pom4) != Double
+                                .parseDouble(pom5) ? 1 : 0;     //HAMMING
+
+                    }
+
+                    if (suma < min1) {
+                        min1 = suma;
+                        nrSlupka = kk;
+                    }
+
+                    suma = 0;
+
+                    iteratorPorownowanego = descList.iterator();
+                    for (int zz = 0; zz < skok; zz++) { // PRZESUWANIE
+                        // ITERATORA
+                        // LISTY
+                        // PIERWSZEJ W CELU JEGO
+                        // ODPOWIEDNIGO UMIEJSCOWIENIA
+                        iteratorPorownowanego.next();
+                    }
+
+                }
+                imgHistogram.put(nrSlupka, imgHistogram.get(nrSlupka) + 1);
+
+                nrSlupka = 0;
+                iteratorBazowek = basePointsList.iterator();
+
+                skok = (liczbaPktGenPrzezAlgo + 1) * ++licznikObrotu; // WYLICZANIE WARTOSCI
+                // PRZESUNI�CIA
+                // ITERATORA PIERWSZEJ LISTY
+
+                z++;
+
+            }
         }
         return imgHistogram;
     }
-
-
-
 
 
     public HashMap koszykiWKoszykach(int liczbaKoszykow, ArrayList<String> descList, int liczbaPktGenPrzezAlgo, String pathToDatabase, double promien) throws IOException {
@@ -510,8 +603,8 @@ public class GeneratorHistogramow2NEW {
 
         GeneratorHistogramow2NEW generatorHistogramow2NEW = new GeneratorHistogramow2NEW();
 
-        generatorHistogramow2NEW.generujHistogramyDlaBazy(PATH_TO_OXFORD_DATABASE, SUFR, 500, true);
-        generatorHistogramow2NEW.generujHistogramyDlaBazy(PATH_TO_OXFORD_DATABASE, SIFT, 500, true);
+        generatorHistogramow2NEW.generujHistogramyDlaBazy(PATH_TO_RZESZOW_DATABASE, BRIEF, 500, false);
+   //     generatorHistogramow2NEW.generujHistogramyDlaBazy(PATH_TO_HOME_DATABASE, SIFT, 100, false);
 
         //  generatorHistogramow2NEW.histogramSumator(PATH_TO_TEST_DATABASE);
 

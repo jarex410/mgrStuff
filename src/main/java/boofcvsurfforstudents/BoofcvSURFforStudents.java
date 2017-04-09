@@ -59,11 +59,12 @@ public class BoofcvSURFforStudents {
     private static final String zuBuDuBase = "H:\\MAGISTERKA\\BazyZdjec\\ZuBuD";
     private static final String oxfordBase = "H:\\MAGISTERKA\\BazyZdjec\\oxbuild_images";
     private static final String BAZA_TESTOWA = "H:\\MAGISTERKA\\BazyZdjec\\BAZA_TESTOWA";
+    private static final String BAZA_DOMOWA = "H:\\MAGISTERKA\\BazyZdjec\\dom";
     public static void main(String[] args) throws IOException {
    // public void generujPktSurf(String pathToFolderWithPictures) throws IOException {
         // SURF generuje punkty na obrazie i opisuje każdy z nich za pomocą 64 wartości.
         int liczbaPunktowOktawa = 500;
-        String pathToFolderWithPictures = BAZA_TESTOWA;
+        String pathToFolderWithPictures = rzeszowBase;
         File folder = new File(pathToFolderWithPictures);
         File[] listOfFiles = folder.listFiles();
 
@@ -87,7 +88,7 @@ public class BoofcvSURFforStudents {
                 }
 
 
-                try {
+/*                try {
                     zapis2 = new PrintWriter(dirPOINTS + file.getName() + ".PKT.txt");
                     FileWriter fw = new FileWriter(dirDESC + file.getName() + ".DESC.txt");
                     BufferedWriter bw = new BufferedWriter(fw);
@@ -120,7 +121,7 @@ public class BoofcvSURFforStudents {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                zapis2.close();
+                zapis2.close();*/
             }
         }
     }
@@ -130,7 +131,7 @@ public class BoofcvSURFforStudents {
         // SURF generuje punkty na obrazie i opisuje każdy z nich za pomocą 124 wartości.
         int liczbaPunktowOktawa = 500;
 
-        String pathToFolderWithPictures = BAZA_TESTOWA;
+        String pathToFolderWithPictures = zuBuDuBase ;
 
         File folder = new File(pathToFolderWithPictures);
         File[] listOfFiles = folder.listFiles();
@@ -163,6 +164,8 @@ public class BoofcvSURFforStudents {
 
                     int j = 0;
 
+                    int z=0;
+
                     for (SurfFeature it : deskryptory) {
 
                         try {
@@ -175,10 +178,13 @@ public class BoofcvSURFforStudents {
                                 bw.newLine();
                             }
                             j++;
-
+                            if(j==501){
+                                break;
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
                     }
 
                     zapis2.write(punkty.toString());
@@ -202,7 +208,7 @@ public class BoofcvSURFforStudents {
     public static void generujPunktySIFT(String plik, List<ScalePoint> pkty, List<SurfFeature> descry) {
 
         ImageFloat32 input = UtilImageIO.loadImage(plik, ImageFloat32.class);
-        SiftImageScaleSpace ss = new SiftImageScaleSpace(1.6f, 4, 4, false);
+        SiftImageScaleSpace ss = new SiftImageScaleSpace(1.6f,8, 4, false);
 
         SiftDetector detector = FactoryInterestPointAlgs.siftDetector(null);
 

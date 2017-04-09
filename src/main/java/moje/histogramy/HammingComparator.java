@@ -54,7 +54,7 @@ public class HammingComparator {
         GeneratorHistogramow2NEW gen = new GeneratorHistogramow2NEW();
         int suma;
 
-        List<String> descPor = gen.pktToArrayList(fileToCompare, liczbaPktGenPrzezAlgo);
+        List<String> descPor = gen.pktToArrayList(fileToCompare, liczbaPktGenPrzezAlgo,false);
 
         int skok = 0;
         int licznikObrotu = 0; // ZMIENNE POMOCNA PRZY
@@ -67,7 +67,7 @@ public class HammingComparator {
         for (File file : learningFiles) {
             if (file != null && file.isFile()) {
 
-                List<String> descBazowki = gen.pktToArrayList(file, liczbaPktGenPrzezAlgo);
+                List<String> descBazowki = gen.pktToArrayList(file, liczbaPktGenPrzezAlgo,false);
 
                 Iterator<String> itPor = descPor.iterator();
                 Iterator<String> itBaz = descBazowki.iterator();// DESKRYPTORY

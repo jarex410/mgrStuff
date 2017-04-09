@@ -29,7 +29,7 @@ public class Test2{
         Test2 test2 = new Test2();
         HashMap[] wynikiOstateczne;
 
-        wynikiOstateczne = test2.test2(20, PATH_TO_RZESZOW_DATABASE);
+        wynikiOstateczne = test2.test2(20, PATH_TO_RZESZOW_DATABASE, false);
 
         File fileOut = new File(PATH_TO_TEST_FOLDER + "\\test2Porownanie.txt");
         FileWriter zapis = new FileWriter(fileOut, true);
@@ -42,7 +42,7 @@ public class Test2{
         zapis2.close();
     }
 
-    public HashMap[] test2(int liczbaObrazowDoLosowanychDoTestow, String bazaDanych) throws IOException {
+    public HashMap[] test2(int liczbaObrazowDoLosowanychDoTestow, String bazaDanych, boolean binarny) throws IOException {
 
         File folderSurf = new File(bazaDanych + "\\HistogramySurf\\");
         File[] listOfFilesSurf = folderSurf.listFiles();
@@ -71,7 +71,7 @@ public class Test2{
         int liczbaPoprawnych = 0;
 
         for (File fileToCompare : wylosowaneObrazySufr) {
-            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, listOfFilesSurf, 200, SUFR));
+            wyniki.putAll(histogramComparator.comparator(fileToCompare, null, listOfFilesSurf, 200, SUFR, binarny));
             podsumowanie.putAll(statystyka(fileToCompare.getName(), wyniki.get(fileToCompare.getName())));
             if(podsumowanie.get(fileToCompare.getName()) == 1){
                 liczbaPoprawnych++;
